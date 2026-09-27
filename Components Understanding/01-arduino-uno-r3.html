@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>C-01 · Arduino Uno R3 — Components Understanding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mask:#0E5A61;      /* solder mask teal */
+  --mask-deep:#0A454B;
+  --copper:#C8893A;    /* copper pad */
+  --silk:#F5F7F4;      /* silkscreen white */
+  --paper:#EEF2EE;
+  --ink:#1B2426;
+  --ink-soft:#4A5A5C;
+  --rule:#C9D3CF;
+  --warn:#B23A2B;
+  --card:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10191A; --card:#172325; --ink:#E6ECEA; --ink-soft:#9DB0AE; --rule:#2C3C3E;
+    --silk:#E6ECEA; --warn:#E0705F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10191A; --card:#172325; --ink:#E6ECEA; --ink-soft:#9DB0AE; --rule:#2C3C3E;
+  --silk:#E6ECEA; --warn:#E0705F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:400 16px/1.55 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:28px 20px 56px}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;line-height:1.05;margin:0}
+code,pre,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+
+/* Header */
+header{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:end;
+  border-bottom:3px solid var(--mask);padding-bottom:18px}
+.tag{background:var(--mask);color:#fff;border-radius:6px;padding:10px 14px;text-align:center;
+  font-family:"Barlow Condensed",sans-serif;line-height:1}
+.tag b{display:block;font-size:34px}
+.tag span{font-size:13px;opacity:.8}
+h1{font-size:clamp(38px,6vw,60px)}
+.lede{margin:6px 0 0;color:var(--ink-soft);font-size:18px;max-width:62ch}
+
+/* Spec strip */
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:22px 0}
+.specs div{background:var(--card);padding:10px 12px}
+.specs dt{font-size:13px;color:var(--ink-soft)}
+.specs dd{margin:0;font-weight:600;font-size:17px}
+
+/* Board figure */
+.board{background:var(--mask);border-radius:12px;padding:18px;color:var(--silk);margin:8px 0 26px}
+.board svg{width:100%;height:auto;display:block}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px 18px;
+  margin:14px 0 0;padding:0;list-style:none;font-size:14.5px;color:#DCE8E6}
+.legend li{display:flex;gap:9px;align-items:baseline}
+.dot{flex:0 0 22px;height:22px;border-radius:50%;background:var(--copper);color:#1B1B1B;
+  font:600 12px/22px "JetBrains Mono",monospace;text-align:center}
+
+/* Sections */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+section{margin:0 0 26px}
+h2{font-size:28px;margin-bottom:10px;color:var(--mask)}
+:root:not([data-theme="light"]) h2{}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) h2{color:#5FC2C9}}
+:root[data-theme="dark"] h2{color:#5FC2C9}
+h3{font-size:20px;margin:0 0 4px}
+p{margin:0 0 10px;max-width:68ch}
+ul.plain{margin:0;padding-left:18px}
+ul.plain li{margin:3px 0}
+
+/* Flow */
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:6px 0 12px}
+.flow div{flex:1 1 120px;background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--copper);
+  padding:8px 10px;border-radius:4px;font-size:14.5px}
+.flow b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:17px}
+
+/* Table */
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;background:color-mix(in srgb,var(--mask) 10%,var(--card))}
+tr:last-child td{border-bottom:0}
+
+/* Examples */
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.ex article{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px}
+.ex p{font-size:14.5px;color:var(--ink-soft)}
+pre{background:#0B2B2E;color:#D8EEEA;border-radius:6px;padding:10px 12px;font-size:12.5px;
+  line-height:1.5;overflow-x:auto;margin:8px 0 0}
+pre .c{color:#7FA9A4}
+
+/* Limits */
+.limits{border:2px solid var(--warn);border-radius:8px;padding:14px 16px;background:var(--card)}
+.limits h2{color:var(--warn)}
+.limits li b{font-variant-numeric:tabular-nums}
+
+/* Check */
+details{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:9px 12px;margin:6px 0}
+summary{cursor:pointer;font-weight:600}
+summary:focus-visible,a:focus-visible{outline:3px solid var(--copper);outline-offset:2px}
+details p{margin:8px 0 0}
+
+.kid{border-left:4px solid var(--copper);padding:6px 14px;font-size:17px;background:var(--card);border-radius:0 6px 6px 0}
+footer{border-top:1px solid var(--rule);padding-top:12px;font-size:13px;color:var(--ink-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+@media (max-width:720px){.grid2{grid-template-columns:1fr} header{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff;font-size:12.5px} .wrap{padding:0;max-width:none}
+  details{break-inside:avoid} details:not([open]) > *:not(summary){display:block}
+  .ex article,.limits,section{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag"><b>C-01</b><span>Controller</span></div>
+  <div>
+    <h1>Arduino Uno R3</h1>
+    <p class="lede">The brain of every starter project. It reads sensors, runs your code in a loop, and switches outputs — LEDs, buzzers, motors — based on what it sees.</p>
+  </div>
+</header>
+
+<dl class="specs">
+  <div><dt>Chip</dt><dd>ATmega328P</dd></div>
+  <div><dt>Clock</dt><dd>16 MHz</dd></div>
+  <div><dt>Flash / SRAM / EEPROM</dt><dd>32 KB / 2 KB / 1 KB</dd></div>
+  <div><dt>Logic level</dt><dd>5 V</dd></div>
+  <div><dt>Power in (jack)</dt><dd>7–12 V</dd></div>
+  <div><dt>Digital I/O</dt><dd>14 (6 PWM)</dd></div>
+  <div><dt>Analog in</dt><dd>6 × 10-bit</dd></div>
+  <div><dt>Size</dt><dd>68.6 × 53.4 mm</dd></div>
+</dl>
+
+<!-- Board map -->
+<figure class="board" aria-label="Map of the Arduino Uno R3 board with numbered zones">
+<svg viewBox="0 0 700 420" role="img" aria-labelledby="bt">
+  <title id="bt">Arduino Uno R3 layout: USB, power jack, regulator, digital header, microcontroller, power and analog headers, reset button, LEDs</title>
+  <rect x="40" y="30" width="620" height="360" rx="18" fill="#0A454B" stroke="#F5F7F4" stroke-width="2"/>
+  <!-- USB -->
+  <rect x="10" y="70" width="110" height="80" rx="4" fill="#B9C2C4" stroke="#F5F7F4"/>
+  <text x="65" y="115" text-anchor="middle" font-family="Barlow Condensed" font-size="18" fill="#1B2426">USB-B</text>
+  <!-- Jack -->
+  <rect x="10" y="270" width="100" height="70" rx="6" fill="#1B1B1B" stroke="#F5F7F4"/>
+  <text x="60" y="310" text-anchor="middle" font-family="Barlow Condensed" font-size="16" fill="#F5F7F4">DC jack</text>
+  <!-- Reset -->
+  <rect x="60" y="40" width="26" height="26" rx="4" fill="#E9E2CF"/>
+  <!-- Digital header -->
+  <rect x="200" y="42" width="430" height="26" rx="3" fill="#111"/>
+  <g fill="#C8893A">
+    <rect x="208" y="50" width="10" height="10"/><rect x="226" y="50" width="10" height="10"/><rect x="244" y="50" width="10" height="10"/><rect x="262" y="50" width="10" height="10"/><rect x="280" y="50" width="10" height="10"/><rect x="298" y="50" width="10" height="10"/><rect x="316" y="50" width="10" height="10"/><rect x="334" y="50" width="10" height="10"/><rect x="352" y="50" width="10" height="10"/><rect x="370" y="50" width="10" height="10"/>
+    <rect x="440" y="50" width="10" height="10"/><rect x="460" y="50" width="10" height="10"/><rect x="480" y="50" width="10" height="10"/><rect x="500" y="50" width="10" height="10"/><rect x="520" y="50" width="10" height="10"/><rect x="540" y="50" width="10" height="10"/><rect x="560" y="50" width="10" height="10"/><rect x="580" y="50" width="10" height="10"/>
+  </g>
+  <text x="415" y="92" text-anchor="middle" font-family="Barlow Condensed" font-size="16" fill="#F5F7F4">DIGITAL 13 … 0   (~ = PWM)</text>
+  <!-- LEDs -->
+  <rect x="175" y="120" width="16" height="9" fill="#F2C94C"/><text x="200" y="129" font-family="JetBrains Mono" font-size="12" fill="#F5F7F4">L (pin 13)</text>
+  <rect x="175" y="140" width="16" height="9" fill="#F2C94C"/><text x="200" y="149" font-family="JetBrains Mono" font-size="12" fill="#F5F7F4">TX / RX</text>
+  <rect x="560" y="130" width="16" height="9" fill="#6FCF97"/><text x="584" y="139" font-family="JetBrains Mono" font-size="12" fill="#F5F7F4">ON</text>
+  <!-- USB chip -->
+  <rect x="140" y="170" width="36" height="36" fill="#111" stroke="#888"/>
+  <!-- Regulator -->
+  <rect x="130" y="250" width="40" height="30" fill="#2B2B2B" stroke="#999"/>
+  <!-- Crystal -->
+  <rect x="220" y="195" width="70" height="22" rx="11" fill="#C9CED0"/>
+  <!-- MCU -->
+  <rect x="330" y="230" width="290" height="56" rx="3" fill="#111" stroke="#666"/>
+  <text x="475" y="263" text-anchor="middle" font-family="JetBrains Mono" font-size="15" fill="#E6E6E6">ATmega328P</text>
+  <!-- ICSP -->
+  <g fill="#C8893A"><circle cx="640" cy="200" r="5"/><circle cx="640" cy="215" r="5"/><circle cx="640" cy="230" r="5"/><circle cx="625" cy="200" r="5"/><circle cx="625" cy="215" r="5"/><circle cx="625" cy="230" r="5"/></g>
+  <!-- Power header -->
+  <rect x="260" y="352" width="160" height="26" rx="3" fill="#111"/>
+  <text x="340" y="342" text-anchor="middle" font-family="Barlow Condensed" font-size="15" fill="#F5F7F4">IOREF RST 3.3V 5V GND GND VIN</text>
+  <!-- Analog header -->
+  <rect x="450" y="352" width="140" height="26" rx="3" fill="#111"/>
+  <text x="520" y="342" text-anchor="middle" font-family="Barlow Condensed" font-size="15" fill="#F5F7F4">A0 A1 A2 A3 A4 A5</text>
+  <g fill="#C8893A">
+    <rect x="270" y="360" width="10" height="10"/><rect x="290" y="360" width="10" height="10"/><rect x="310" y="360" width="10" height="10"/><rect x="330" y="360" width="10" height="10"/><rect x="350" y="360" width="10" height="10"/><rect x="370" y="360" width="10" height="10"/><rect x="390" y="360" width="10" height="10"/>
+    <rect x="460" y="360" width="10" height="10"/><rect x="482" y="360" width="10" height="10"/><rect x="504" y="360" width="10" height="10"/><rect x="526" y="360" width="10" height="10"/><rect x="548" y="360" width="10" height="10"/><rect x="570" y="360" width="10" height="10"/>
+  </g>
+  <!-- Callouts -->
+  <g font-family="JetBrains Mono" font-size="13" font-weight="600" text-anchor="middle">
+    <circle cx="130" cy="75" r="13" fill="#C8893A"/><text x="130" y="80" fill="#1B1B1B">1</text>
+    <circle cx="125" cy="300" r="13" fill="#C8893A"/><text x="125" y="305" fill="#1B1B1B">2</text>
+    <circle cx="190" cy="265" r="13" fill="#C8893A"/><text x="190" y="270" fill="#1B1B1B">3</text>
+    <circle cx="645" cy="55" r="13" fill="#C8893A"/><text x="645" y="60" fill="#1B1B1B">4</text>
+    <circle cx="315" cy="258" r="13" fill="#C8893A"/><text x="315" y="263" fill="#1B1B1B">5</text>
+    <circle cx="245" cy="365" r="13" fill="#C8893A"/><text x="245" y="370" fill="#1B1B1B">6</text>
+    <circle cx="605" cy="365" r="13" fill="#C8893A"/><text x="605" y="370" fill="#1B1B1B">7</text>
+    <circle cx="100" cy="53" r="13" fill="#C8893A"/><text x="100" y="58" fill="#1B1B1B">8</text>
+    <circle cx="200" cy="188" r="13" fill="#C8893A"/><text x="200" y="193" fill="#1B1B1B">9</text>
+  </g>
+</svg>
+<ol class="legend">
+  <li><span class="dot">1</span><span><b>USB-B</b> — power + upload code + Serial Monitor</span></li>
+  <li><span class="dot">2</span><span><b>DC jack</b> — 7–12 V, 2.1 mm, centre positive</span></li>
+  <li><span class="dot">3</span><span><b>Regulator</b> — turns jack voltage into clean 5 V</span></li>
+  <li><span class="dot">4</span><span><b>Digital header</b> — pins 0–13, GND, AREF, SDA/SCL</span></li>
+  <li><span class="dot">5</span><span><b>ATmega328P</b> — the actual computer; runs your sketch</span></li>
+  <li><span class="dot">6</span><span><b>Power header</b> — 5 V, 3.3 V, GND, VIN out to your circuit</span></li>
+  <li><span class="dot">7</span><span><b>Analog in</b> — A0–A5, read 0–5 V as 0–1023</span></li>
+  <li><span class="dot">8</span><span><b>Reset button</b> — restarts your sketch from the top</span></li>
+  <li><span class="dot">9</span><span><b>USB-serial chip</b> (16U2) — translates USB for the MCU</span></li>
+</ol>
+</figure>
+
+<div class="grid2">
+<section>
+  <h2>Purpose</h2>
+  <p>A microcontroller board: a tiny, single-job computer with pins you can wire to the real world. No OS, no screen — it runs one program (a <em>sketch</em>) forever, from power-on.</p>
+  <ul class="plain">
+    <li>Prototype an idea in hours, not weeks</li>
+    <li>Learn electronics + code together, with instant physical feedback</li>
+    <li>Core of simple robots: read sensors → decide → drive motors</li>
+  </ul>
+</section>
+<section>
+  <h2>How it works</h2>
+  <div class="flow">
+    <div><b>Write</b>Sketch in Arduino IDE (C/C++)</div>
+    <div><b>Upload</b>Over USB into 32 KB flash</div>
+    <div><b>setup()</b>Runs once at power-on</div>
+    <div><b>loop()</b>Runs forever, thousands of times/sec</div>
+  </div>
+  <p>Inside <code>loop()</code> you <b>read inputs</b> (<code>digitalRead</code>, <code>analogRead</code>), <b>decide</b> (if/else), and <b>write outputs</b> (<code>digitalWrite</code>, <code>analogWrite</code>). Power from USB or jack — jack wins if both are present, and both at once is safe.</p>
+</section>
+</div>
+
+<section>
+  <h2>Pin map — what each group does</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Pins</th><th>Type</th><th>Values</th><th>Use it for</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">D0–D13</td><td>Digital in/out</td><td>HIGH (5 V) / LOW (0 V)</td><td>Buttons, LEDs, relays, buzzers</td></tr>
+      <tr><td class="mono">~3 5 6 9 10 11</td><td>PWM out</td><td>0–255</td><td>Dim LEDs, motor speed, servo-like control</td></tr>
+      <tr><td class="mono">A0–A5</td><td>Analog in</td><td>0–1023 (≈4.9 mV/step)</td><td>Potentiometer, light, temperature sensors</td></tr>
+      <tr><td class="mono">D0 / D1</td><td>Serial (UART)</td><td>RX / TX</td><td>Talks to PC — keep free while uploading</td></tr>
+      <tr><td class="mono">A4 / A5</td><td>I²C</td><td>SDA / SCL</td><td>Displays, IMUs, multi-sensor boards</td></tr>
+      <tr><td class="mono">D10–D13</td><td>SPI</td><td>SS / MOSI / MISO / SCK</td><td>SD cards, fast displays</td></tr>
+      <tr><td class="mono">D2 / D3</td><td>Interrupts</td><td>Edge-triggered</td><td>Encoders, instant button response</td></tr>
+      <tr><td class="mono">5V · 3.3V · GND · VIN</td><td>Power out</td><td>—</td><td>Feed sensors and small modules</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Examples — try in this order</h2>
+  <div class="ex">
+    <article>
+      <h3>Blink (no wiring)</h3>
+      <p>Proves the toolchain works. Uses the onboard L LED on pin 13.</p>
+<pre>void setup() { pinMode(13, OUTPUT); }
+void loop() {
+  digitalWrite(13, HIGH); delay(500);
+  digitalWrite(13, LOW);  delay(500);
+}</pre>
+    </article>
+    <article>
+      <h3>Button → LED</h3>
+      <p>First input. Button between D2 and GND; internal pull-up, so pressed = LOW.</p>
+<pre>void setup() {
+  pinMode(2, INPUT_PULLUP);
+  pinMode(13, OUTPUT);
+}
+void loop() {
+  digitalWrite(13, digitalRead(2) == LOW);
+}</pre>
+    </article>
+    <article>
+      <h3>Light sensor → dimmer</h3>
+      <p>Analog in → PWM out. LDR divider on A0, LED + 220 Ω on D9.</p>
+<pre>void setup() { Serial.begin(9600); }
+void loop() {
+  int v = analogRead(A0);      <span class="c">// 0–1023</span>
+  analogWrite(9, v / 4);       <span class="c">// 0–255</span>
+  Serial.println(v); delay(50);
+}</pre>
+    </article>
+  </div>
+</section>
+
+<div class="grid2">
+<section class="limits">
+  <h2>Limits — don't cook the board</h2>
+  <ul class="plain">
+    <li><b>20 mA</b> per pin normal, <b>40 mA</b> absolute max; <b>200 mA</b> total across all pins</li>
+    <li>Always add a resistor (220–330 Ω) in series with an LED</li>
+    <li>Never drive a motor directly from a pin — use a driver or transistor</li>
+    <li>Pins are <b>5 V</b>: 3.3 V-only sensors need a level shifter</li>
+    <li>Jack input <b>7–12 V</b>; above 12 V the regulator overheats</li>
+    <li>Never short 5 V to GND; unplug before rewiring</li>
+    <li>Only <b>2 KB</b> SRAM — large arrays/strings crash silently</li>
+  </ul>
+</section>
+<section>
+  <h2>Quick self-check</h2>
+  <details><summary>Which pins can dim an LED?</summary><p>3, 5, 6, 9, 10, 11 — the ones marked ~ (PWM).</p></details>
+  <details><summary>analogRead returns 512. What voltage is that?</summary><p>≈2.5 V (512 / 1023 × 5 V).</p></details>
+  <details><summary>Upload fails with a circuit on D0/D1. Why?</summary><p>Those are the serial lines the USB upload uses. Disconnect them while uploading.</p></details>
+  <details><summary>USB and 9 V adapter both plugged in — which powers it?</summary><p>The jack. The board switches automatically; having both connected is safe.</p></details>
+  <p class="kid" style="margin-top:14px"><b>For the kids:</b> the Uno is a tiny brain. Its pins are fingers — some feel things, some push buttons on the world.</p>
+</section>
+</div>
+
+<footer>
+  <span>Components Understanding · C-01 · Controller</span>
+  <span>Next: C-02 LED &amp; resistor</span>
+</footer>
+
+</div>
+</body>
+</html>
