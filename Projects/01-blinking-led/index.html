@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>P-01 · Blinking LED — Arduino Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mask:#0E5A61;      /* solder mask teal */
+  --mask-deep:#0A454B;
+  --copper:#C8893A;    /* copper pad */
+  --silk:#F5F7F4;      /* silkscreen white */
+  --paper:#EEF2EE;
+  --ink:#1B2426;
+  --ink-soft:#4A5A5C;
+  --rule:#C9D3CF;
+  --warn:#B23A2B;
+  --card:#FFFFFF;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#10191A; --card:#172325; --ink:#E6ECEA; --ink-soft:#9DB0AE; --rule:#2C3C3E;
+    --silk:#E6ECEA; --warn:#E0705F;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#10191A; --card:#172325; --ink:#E6ECEA; --ink-soft:#9DB0AE; --rule:#2C3C3E;
+  --silk:#E6ECEA; --warn:#E0705F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font:400 16px/1.55 "Barlow",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:28px 20px 56px}
+h1,h2,h3{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:700;line-height:1.05;margin:0}
+code,pre,.mono{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+
+/* Header */
+header{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:end;
+  border-bottom:3px solid var(--mask);padding-bottom:18px}
+.tag{background:var(--mask);color:#fff;border-radius:6px;padding:10px 14px;text-align:center;
+  font-family:"Barlow Condensed",sans-serif;line-height:1}
+.tag b{display:block;font-size:34px}
+.tag span{font-size:13px;opacity:.8}
+h1{font-size:clamp(38px,6vw,60px)}
+.lede{margin:6px 0 0;color:var(--ink-soft);font-size:18px;max-width:62ch}
+
+/* Spec strip */
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:22px 0}
+.specs div{background:var(--card);padding:10px 12px}
+.specs dt{font-size:13px;color:var(--ink-soft)}
+.specs dd{margin:0;font-weight:600;font-size:17px}
+
+/* Board figure */
+.board{background:var(--mask);border-radius:12px;padding:18px;color:var(--silk);margin:8px 0 26px}
+.board svg{width:100%;height:auto;display:block}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px 18px;
+  margin:14px 0 0;padding:0;list-style:none;font-size:14.5px;color:#DCE8E6}
+.legend li{display:flex;gap:9px;align-items:baseline}
+.dot{flex:0 0 22px;height:22px;border-radius:50%;background:var(--copper);color:#1B1B1B;
+  font:600 12px/22px "JetBrains Mono",monospace;text-align:center}
+
+/* Sections */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+section{margin:0 0 26px}
+h2{font-size:28px;margin-bottom:10px;color:var(--mask)}
+:root:not([data-theme="light"]) h2{}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) h2{color:#5FC2C9}}
+:root[data-theme="dark"] h2{color:#5FC2C9}
+h3{font-size:20px;margin:0 0 4px}
+p{margin:0 0 10px;max-width:68ch}
+ul.plain{margin:0;padding-left:18px}
+ul.plain li{margin:3px 0}
+
+/* Flow */
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin:6px 0 12px}
+.flow div{flex:1 1 120px;background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--copper);
+  padding:8px 10px;border-radius:4px;font-size:14.5px}
+.flow b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:17px}
+
+/* Table */
+.tbl{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-weight:600;background:color-mix(in srgb,var(--mask) 10%,var(--card))}
+tr:last-child td{border-bottom:0}
+
+/* Examples */
+.ex{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+.ex article{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:14px}
+.ex p{font-size:14.5px;color:var(--ink-soft)}
+pre{background:#0B2B2E;color:#D8EEEA;border-radius:6px;padding:10px 12px;font-size:12.5px;
+  line-height:1.5;overflow-x:auto;margin:8px 0 0}
+pre .c{color:#7FA9A4}
+
+/* Limits */
+.limits{border:2px solid var(--warn);border-radius:8px;padding:14px 16px;background:var(--card)}
+.limits h2{color:var(--warn)}
+.limits li b{font-variant-numeric:tabular-nums}
+
+/* Check */
+details{background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:9px 12px;margin:6px 0}
+summary{cursor:pointer;font-weight:600}
+summary:focus-visible,a:focus-visible{outline:3px solid var(--copper);outline-offset:2px}
+details p{margin:8px 0 0}
+
+.kid{border-left:4px solid var(--copper);padding:6px 14px;font-size:17px;background:var(--card);border-radius:0 6px 6px 0}
+footer{border-top:1px solid var(--rule);padding-top:12px;font-size:13px;color:var(--ink-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+@media (max-width:720px){.grid2{grid-template-columns:1fr} header{grid-template-columns:1fr}}
+@media print{
+  body{background:#fff;font-size:12.5px} .wrap{padding:0;max-width:none}
+  details{break-inside:avoid} details:not([open]) > *:not(summary){display:block}
+  .ex article,.limits,section{break-inside:avoid}
+}
+</style><style>
+.wave{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:12px}
+.wave svg{width:100%;height:auto;display:block}
+.lines{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14.5px;align-items:baseline}
+.lines code{background:color-mix(in srgb,var(--mask) 12%,var(--card));padding:2px 6px;border-radius:4px;white-space:nowrap}
+.steps{counter-reset:s;list-style:none;padding:0;margin:0}
+.steps li{counter-increment:s;display:flex;gap:10px;margin:6px 0}
+.steps li::before{content:counter(s);flex:0 0 24px;height:24px;border-radius:50%;background:var(--mask);color:#fff;font:600 12px/24px "JetBrains Mono",monospace;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="tag"><b>P-01</b><span>Project</span></div>
+  <div>
+    <h1>Blinking LED</h1>
+    <p class="lede">The "hello world" of hardware. One LED on pin 13 turns on for one second, off for one second, forever. It proves the whole chain works: IDE → USB → chip → pin → light.</p>
+  </div>
+</header>
+
+<dl class="specs">
+  <div><dt>Book reference</dt><dd>Example 4-1</dd></div>
+  <div><dt>Parts</dt><dd>Uno + 1 LED</dd></div>
+  <div><dt>Pins used</dt><dd>D13, GND</dd></div>
+  <div><dt>Cycle</dt><dd>2 s (0.5 Hz)</dd></div>
+  <div><dt>Duty cycle</dt><dd>50 %</dd></div>
+  <div><dt>Build time</dt><dd>~5 min</dd></div>
+</dl>
+
+<figure class="board" aria-label="Wiring: LED long leg into pin 13, short leg into GND">
+<svg viewBox="0 0 700 300" role="img" aria-labelledby="wt">
+  <title id="wt">LED plugged directly into the digital header: long leg in pin 13, short leg in GND next to it</title>
+  <rect x="60" y="170" width="580" height="46" rx="4" fill="#111"/>
+  <g font-family="Barlow Condensed" font-size="17" fill="#F5F7F4" text-anchor="middle">
+    <text x="110" y="245">SCL</text><text x="160" y="245">SDA</text><text x="210" y="245">AREF</text>
+    <text x="260" y="245" fill="#F2C94C">GND</text><text x="310" y="245" fill="#F2C94C">13</text>
+    <text x="360" y="245">12</text><text x="410" y="245">~11</text><text x="460" y="245">~10</text><text x="510" y="245">~9</text><text x="560" y="245">8</text>
+  </g>
+  <g fill="#C8893A">
+    <rect x="102" y="186" width="16" height="16"/><rect x="152" y="186" width="16" height="16"/><rect x="202" y="186" width="16" height="16"/>
+    <rect x="252" y="186" width="16" height="16"/><rect x="302" y="186" width="16" height="16"/><rect x="352" y="186" width="16" height="16"/>
+    <rect x="402" y="186" width="16" height="16"/><rect x="452" y="186" width="16" height="16"/><rect x="502" y="186" width="16" height="16"/><rect x="552" y="186" width="16" height="16"/>
+  </g>
+  <!-- LED -->
+  <line x1="260" y1="120" x2="260" y2="194" stroke="#D8D8D8" stroke-width="4"/>
+  <line x1="310" y1="100" x2="310" y2="194" stroke="#D8D8D8" stroke-width="4"/>
+  <path d="M250 120 h70 v-40 a35 35 0 0 0 -70 0 z" fill="#4FB3E8" opacity=".9" stroke="#F5F7F4" stroke-width="2"/>
+  <rect x="246" y="116" width="78" height="8" rx="2" fill="#4FB3E8" stroke="#F5F7F4"/>
+  <g font-family="Barlow" font-size="16" fill="#F5F7F4">
+    <line x1="330" y1="140" x2="440" y2="110" stroke="#C8893A" stroke-width="2"/>
+    <text x="446" y="100">Long leg (+ anode)</text><text x="446" y="120">→ pin 13</text>
+    <line x1="245" y1="150" x2="140" y2="110" stroke="#C8893A" stroke-width="2"/>
+    <text x="20" y="95">Short leg (− cathode)</text><text x="20" y="115">→ GND</text>
+  </g>
+</svg>
+<ol class="legend">
+  <li><span class="dot">+</span><span><b>Long leg / round rim</b> goes to pin 13 (the signal)</span></li>
+  <li><span class="dot">−</span><span><b>Short leg / flat rim</b> goes to GND (return path)</span></li>
+  <li><span class="dot">L</span><span><b>Onboard L LED</b> blinks in sync — no wiring needed to test</span></li>
+</ol>
+</figure>
+
+<div class="grid2">
+<section>
+  <h2>The code</h2>
+<pre>const int LED = 13;          <span class="c">// name pin 13 "LED"</span>
+
+void setup() {
+  pinMode(LED, OUTPUT);      <span class="c">// pin 13 drives, not reads</span>
+}
+
+void loop() {
+  digitalWrite(LED, HIGH);   <span class="c">// 5 V on pin → LED on</span>
+  delay(1000);               <span class="c">// hold 1000 ms</span>
+  digitalWrite(LED, LOW);    <span class="c">// 0 V on pin → LED off</span>
+  delay(1000);               <span class="c">// hold 1000 ms</span>
+}</pre>
+</section>
+<section>
+  <h2>Line by line</h2>
+  <div class="lines">
+    <code>const int LED = 13</code><span>A named constant. Change one number to move the LED to another pin.</span>
+    <code>setup()</code><span>Runs once after power-up or reset.</span>
+    <code>pinMode(…, OUTPUT)</code><span>Configures the pin to push current out. Default is input.</span>
+    <code>loop()</code><span>Repeats forever — this is the whole program.</span>
+    <code>digitalWrite HIGH</code><span>Pin goes to 5 V; current flows 13 → LED → GND.</span>
+    <code>delay(1000)</code><span>Chip waits 1,000 ms doing nothing else (blocking).</span>
+    <code>digitalWrite LOW</code><span>Pin goes to 0 V; no voltage difference, LED off.</span>
+  </div>
+</section>
+</div>
+
+<section>
+  <h2>What the pin actually does</h2>
+  <div class="wave">
+  <svg viewBox="0 0 700 150" role="img" aria-label="Square wave on pin 13: 5 volts for 1 second, 0 volts for 1 second, repeating">
+    <g font-family="JetBrains Mono" font-size="12" fill="currentColor" style="color:var(--ink-soft)">
+      <text x="4" y="34">5 V</text><text x="4" y="104">0 V</text>
+      <text x="95" y="135">0 s</text><text x="235" y="135">1 s</text><text x="375" y="135">2 s</text><text x="515" y="135">3 s</text><text x="650" y="135">4 s</text>
+    </g>
+    <line x1="50" y1="100" x2="690" y2="100" stroke="var(--rule)"/>
+    <path d="M60 100 H100 V30 H240 V100 H380 V30 H520 V100 H660 V30 H690" fill="none" stroke="#0E5A61" stroke-width="4"/>
+    <g font-family="Barlow Condensed" font-size="16" fill="#C8893A" text-anchor="middle">
+      <text x="170" y="22">ON</text><text x="310" y="92">OFF</text><text x="450" y="22">ON</text><text x="590" y="92">OFF</text>
+    </g>
+  </svg>
+  </div>
+  <p style="margin-top:10px">A digital pin has only two states. Blinking is just switching between them on a timer — a square wave with a 2-second period.</p>
+</section>
+
+<div class="grid2">
+<section>
+  <h2>Run it</h2>
+  <ol class="steps">
+    <li><span>Plug the Uno into the Mac via USB — green <b>ON</b> lights.</span></li>
+    <li><span>IDE: <b>Tools → Board → Arduino Uno</b>, <b>Tools → Port → /dev/cu.usbmodem…</b></span></li>
+    <li><span>Type the sketch (or <b>File → Examples → 01.Basics → Blink</b>).</span></li>
+    <li><span><b>Verify ✓</b> → "Done compiling" = code turned into machine instructions.</span></li>
+    <li><span><b>Upload →</b> board resets, TX/RX flicker, sketch stored in flash.</span></li>
+    <li><span>LED blinks. Unplug and replug — it still blinks; the sketch stays until overwritten.</span></li>
+  </ol>
+</section>
+<section>
+  <h2>Not blinking?</h2>
+  <div class="tbl"><table style="min-width:0">
+    <thead><tr><th>Symptom</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>ON lit, L dark</td><td>No sketch running — upload again</td></tr>
+      <tr><td>L blinks, your LED dark</td><td>LED reversed or loose — rotate 180°</td></tr>
+      <tr><td>Upload error / no port</td><td>Pick the usbmodem port; try another cable (some are charge-only)</td></tr>
+      <tr><td>Compile error</td><td>Check <code>;</code>, <code>{ }</code>, and case: <code>digitalWrite</code> not <code>DigitalWrite</code></td></tr>
+      <tr><td>LED always on</td><td>Missing second <code>delay</code> — off time is ~0 ms</td></tr>
+    </tbody>
+  </table></div>
+</section>
+</div>
+
+<section>
+  <h2>Experiments — change one thing at a time</h2>
+  <div class="ex">
+    <article>
+      <h3>Faster blink</h3>
+      <p>Set both delays to 200. At ~20 ms each (25 Hz) your eye stops seeing the blink — the LED just looks dimmer. That's the idea behind PWM.</p>
+    </article>
+    <article>
+      <h3>Heartbeat</h3>
+      <p>Uneven timing: on 100, off 100, on 100, off 700. Same code, different rhythm.</p>
+<pre>int t[] = {100,100,100,700};
+for (int i=0;i&lt;4;i++){
+  digitalWrite(LED, i%2==0);
+  delay(t[i]);
+}</pre>
+    </article>
+    <article>
+      <h3>SOS in Morse</h3>
+      <p>3 short (200 ms), 3 long (600 ms), 3 short, pause 2 s. First "real" message from a machine.</p>
+    </article>
+  </div>
+</section>
+
+<div class="grid2">
+<section class="limits">
+  <h2>Limits — know what you're skipping</h2>
+  <ul class="plain">
+    <li>No resistor here: a blue LED can pull <b>~30–40 mA</b>, above the <b>20 mA</b> pin rating. Fine for a demo, not for hours.</li>
+    <li>Proper build: LED + <b>220 Ω</b> resistor on a breadboard → ~10 mA (C-02)</li>
+    <li><code>delay()</code> freezes the chip — it can't read a button meanwhile. Later fix: <code>millis()</code></li>
+    <li>Only pin 13 sits next to GND on the header — other pins need a breadboard</li>
+  </ul>
+</section>
+<section>
+  <h2>Quick self-check</h2>
+  <details><summary>What happens if you delete pinMode()?</summary><p>Pin stays an input; LED glows very faintly or not at all (only the weak internal pull-up drives it).</p></details>
+  <details><summary>How many times does it blink per minute?</summary><p>30 — one full cycle every 2 seconds.</p></details>
+  <details><summary>Make it blink on pin 8 — what changes?</summary><p>One number: <code>const int LED = 8;</code> — and move the LED (with a resistor, via breadboard).</p></details>
+  <details><summary>Why does the L LED blink too?</summary><p>It's wired to pin 13 on the board. Same pin, same signal.</p></details>
+  <p class="kid" style="margin-top:14px"><b>For the kids:</b> we tell the tiny brain "light on, count to one, light off, count to one" — and it never gets bored.</p>
+</section>
+</div>
+
+<footer>
+  <span>Projects · P-01 · Blinking LED</span>
+  <span>Uses: C-01 Arduino Uno R3 · Next: C-02 LED &amp; resistor</span>
+</footer>
+
+</div>
+</body>
+</html>
